@@ -29,7 +29,7 @@ export default {
   },
   mounted: function() {
     const _this = this;
-    fetch("http://localhost:3010/api/tablaDinosaurio", {
+    fetch("https://torneoconisis.herokuapp.com/api/tablaDinosaurio", {
       method: "GET"
     })
       .then(res => res.text())

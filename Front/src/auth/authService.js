@@ -53,10 +53,12 @@ class AuthService extends EventEmitter {
   }
 
   isAuthenticated() {
-    return (
-      Date.now() < this.tokenExpiry &&
-      localStorage.getItem(localStorageKey) === "true"
-    );
+    if(localStorage.getItem(localStorageKey) === "true"){
+      return true
+    }
+    else{
+      return false
+    }
   }
 
   isIdTokenValid() {
@@ -93,6 +95,10 @@ class AuthService extends EventEmitter {
     });
   }
 
+  getProfile(){
+    return localStorage.getItem("name")
+  }
+
   localLogin(authResult) {
     this.idToken = authResult.idToken;
     this.profile = authResult.idTokenPayload;
@@ -103,7 +109,9 @@ class AuthService extends EventEmitter {
     this.accessToken = authResult.accessToken;
 
     localStorage.setItem(localStorageKey, "true");
+    localStorage.setItem("name", this.profile.given_name);
 
+    // eslint-disable-next-line no-undef
     $cookies.set('token', this.accessToken);
 
     this.emit(loginEvent, {

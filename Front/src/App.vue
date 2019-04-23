@@ -1,11 +1,9 @@
 <template>
-  <div id="app">
+  <div id="app" class="bartxd">  
     <NavBarNew/>
     <div class="container mt-5">
       <router-view/>
     </div>
-    <footer>
-    </footer>
   </div>
 </template>
 
@@ -32,3 +30,16 @@ export default {
   }
 };
 </script>
+<style>
+html{
+  height: 100%;
+}
+body{
+  height: 100%;
+}
+.bartxd{
+  background-image: url("../public/dino.jpg");
+  height: 100%;
+}
+</style>
+

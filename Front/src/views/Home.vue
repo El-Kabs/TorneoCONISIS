@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <Tabla/>
   </div>
 </template>
@@ -13,7 +13,7 @@ export default {
   },
   mounted: function(){
     const _this = this;
-    fetch("http://localhost:3010/api/tablaDinosaurio", {
+    fetch("https://torneoconisis.herokuapp.com/api/tablaDinosaurio", {
       method: "GET"
     }).then(res => res.text()).then(json=>{
       const parsed = JSON.parse(json.replace(/'/g, '"'));
@@ -33,5 +33,8 @@ export default {
   .fa-link {
     margin-right: 5px;
   }
+}
+.rank{
+  background-image: url("../../public/dino.png")
 }
 </style>

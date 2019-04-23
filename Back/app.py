@@ -1,5 +1,7 @@
+# encoding: utf-8
 """Python Flask API Auth0 integration example
 """
+
 
 from functools import wraps
 import json
@@ -14,13 +16,21 @@ from jose import jwt
 import sqlite3
 from sqlite3 import Error
 
+from flask_cors import CORS, cross_origin
+
+
+app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 AUTH0_DOMAIN = env.get("AUTH0_DOMAIN")
 API_IDENTIFIER = env.get("API_IDENTIFIER")
 ALGORITHMS = ["RS256"]
-APP = Flask(__name__)
+app = Flask(__name__)
 
 ranking_table = """ CREATE TABLE IF NOT EXISTS ranking (
                                         id integer PRIMARY KEY,
@@ -28,7 +38,7 @@ ranking_table = """ CREATE TABLE IF NOT EXISTS ranking (
                                         puntos integer NOT NULL
                                     ); """
 
-# Format error response and append status code.
+# Formato error response and append status code.
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
@@ -68,7 +78,7 @@ finally:
 
 
 
-@APP.errorhandler(AuthError)
+@app.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
@@ -180,10 +190,11 @@ def requires_auth(f):
 
 
 # Controllers API
-@APP.route("/api/tablaDinosaurio")
+@app.route("/api/tablaDinosaurio")
 @cross_origin(headers=["Content-Type", "Authorization"])
 def darTablaDinosaurio():
     jsonRetorno = {}
+    jsonR = {}
     conn = sqlite3.connect('ranking.db')
     cur = conn.cursor()
     cur.execute("SELECT * FROM 'ranking' ORDER BY puntos DESC;")
@@ -191,12 +202,12 @@ def darTablaDinosaurio():
         jsonRetorno[registro[1]] = registro[2]
     cur.close()
     conn.close()
-    return jsonify(jsonRetorno)
+    return str(jsonRetorno)
 
 
-@APP.route("/api/guardarPuntaje", methods=['GET', 'POST'])
+@app.route("/api/guardarPuntaje", methods=['GET', 'POST'])
 @cross_origin(headers=["Content-Type", "Authorization"])
-@cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
+@cross_origin()
 @requires_auth
 def guardarPuntaje():
     if(request.method == 'GET'):
@@ -206,11 +217,11 @@ def guardarPuntaje():
         puntaje = json.loads(data)
         puntajeGuardar = (puntaje['nombre'], puntaje['puntaje'])
         insertarPuntaje(puntajeGuardar)
-        return "Se guardó el puntaje: "+str(puntaje['puntaje'])+" del usuario: "+str(puntaje['nombre'])
+        return "Se guardo el puntaje: "+str(puntaje['puntaje'])+" del usuario: "+str(puntaje['nombre'])
     
-@APP.route("/api/modificarPuntaje", methods=['GET', 'POST'])
+@app.route("/api/modificarPuntaje", methods=['GET', 'POST'])
 @cross_origin(headers=["Content-Type", "Authorization"])
-@cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
+@cross_origin()
 @requires_auth
 def modificarPuntaje():
     if(request.method == 'GET'):
@@ -220,8 +231,8 @@ def modificarPuntaje():
         puntaje = json.loads(data)
         puntajeModificar = (puntaje['nombre'], puntaje['puntaje'])
         modifPuntaje(puntajeModificar)
-        return "Se guardó el puntaje: "+str(puntaje['puntaje'])+" del usuario: "+str(puntaje['nombre'])
+        return "Se modificó el puntaje: "+str(puntaje['puntaje'])+" del usuario: "+str(puntaje['nombre'])
 
 
 if __name__ == "__main__":
-    APP.run(host="0.0.0.0", port=env.get("PORT", 3010))
+    app.run(host="0.0.0.0")
